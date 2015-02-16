@@ -14,6 +14,7 @@ public class TGTeam {
 	private ChatColor color;
 	private TGPlugin plugin;
 	private ArrayList<Player> players = new ArrayList<Player>();
+	private Player taupe;
 	
 	public TGTeam(String name, String displayName, ChatColor color, TGPlugin plugin) {
 		this.name = name;
@@ -28,6 +29,21 @@ public class TGTeam {
 		t.setDisplayName(this.displayName);
 		t.setCanSeeFriendlyInvisibles(true);
 		t.setPrefix(this.color+"");
+		
+		taupe = null;
+	}
+	
+	public void setTaupe(Player player)
+	{
+	    if (players.contains(player))
+	    {
+	        taupe = player;
+	    }
+	}
+	
+	public Player getTaupe()
+	{
+	    return taupe;
 	}
 	
 	public String getName() {

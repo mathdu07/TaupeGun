@@ -397,6 +397,29 @@ public final class TGPlugin extends JavaPlugin implements ConversationAbandonedL
 	
 	public void shiftEpisode() {
 		this.episode++;
+		
+		if (episode == 2)
+		{
+		    Random random = new Random();
+		    
+		    for (TGTeam t : teams)
+		    {
+		        ArrayList<Player> players = t.getPlayers();
+		        int taupeId = random.nextInt(players.size());
+		        
+		        Player taupe = players.get(taupeId);
+		        t.setTaupe(taupe);
+		        taupe.sendMessage(ChatColor.RED + "------------------------");
+		        taupe.sendMessage(ChatColor.GOLD + "Vous avez été désigné comme taupe !");
+		        taupe.sendMessage(ChatColor.GOLD + "Votre objectif est de ruiner votre équipe, et de rejoindre les autre taupes");
+		        taupe.sendMessage(ChatColor.GOLD + "Pour cela, vous avez 2 commandes spéciales : ");
+		        taupe.sendMessage(ChatColor.GOLD + "/reveal Pour vous révéler, histoire de rigoler ;)");
+		        taupe.sendMessage(ChatColor.GOLD + "/t <message> Pour écrire à toutes les taupes,");
+		        taupe.sendMessage(ChatColor.GOLD + "les messages restent anonymes tant que vous ne vous êtes pas révéler");
+		        taupe.sendMessage(ChatColor.GOLD + "Bonne chance petite taupe, ne te fais pas spot !");
+		        taupe.sendMessage(ChatColor.RED + "------------------------");
+		    }
+		}
 	}
 	
 	public boolean isGameRunning() {
@@ -478,8 +501,24 @@ public final class TGPlugin extends JavaPlugin implements ConversationAbandonedL
 		return s.substring(0, Math.min(s.length(), 16));
 	}
 
-
 	public boolean inSameTeam(Player pl, Player pl2) {
 		return (getTeamForPlayer(pl).equals(getTeamForPlayer(pl2)));
+	}
+	
+	public ArrayList<Player> getTaupes()
+	{
+	    ArrayList<Player> taupes = new ArrayList<Player>();
+	    
+	    for (TGTeam team : teams)
+	    {
+	        taupes.add(team.getTaupe());
+	    }
+	    
+	    return taupes;
+	}
+	
+	public boolean isTaupe(Player p)
+	{
+	    return getTaupes().contains(p);
 	}
 }
