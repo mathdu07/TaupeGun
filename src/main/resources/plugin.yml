@@ -1,8 +1,9 @@
-name: UHPlugin
-main: me.azenet.UHPlugin.UHPlugin
+name: TaupeGun
+main: me.mathdu07.taupegun.TGPlugin
 version: 0.1
 
 commands:
-   uh:
-      description: Ultra Harcore
-      usage: /uh <subcommand>
+   taupegun:
+      description: Taupe Gun
+      usage: "Usage : /<command> <start|shift|team|addspawn|generatewalls>"
+      aliases: [tg]

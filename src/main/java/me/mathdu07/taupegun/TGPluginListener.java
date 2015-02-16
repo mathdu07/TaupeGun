@@ -1,4 +1,4 @@
-package me.azenet.UHPlugin;
+package me.mathdu07.taupegun;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,11 +39,11 @@ import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
-public class UHPluginListener implements Listener {
+public class TGPluginListener implements Listener {
 
-	UHPlugin p = null;
+	TGPlugin p = null;
 	
-	public UHPluginListener(UHPlugin p) {
+	public TGPluginListener(TGPlugin p) {
 		this.p = p;
 	}
 	

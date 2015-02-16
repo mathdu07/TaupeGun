@@ -1,4 +1,4 @@
-package me.azenet.UHPlugin;
+package me.mathdu07.taupegun;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -36,7 +36,7 @@ import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 
-public final class UHPlugin extends JavaPlugin implements ConversationAbandonedListener {
+public final class TGPlugin extends JavaPlugin implements ConversationAbandonedListener {
 
 	private Logger logger = null;
 	private LinkedList<Location> loc = new LinkedList<Location>();
@@ -51,16 +51,16 @@ public final class UHPlugin extends JavaPlugin implements ConversationAbandonedL
 	private NumberFormat formatter = new DecimalFormat("00");
 	private String sbobjname = "KTP";
 	private Boolean damageIsOn = false;
-	private ArrayList<UHTeam> teams = new ArrayList<UHTeam>();
+	private ArrayList<TGTeam> teams = new ArrayList<TGTeam>();
 	private HashMap<String, ConversationFactory> cfs = new HashMap<String, ConversationFactory>();
-	private UHPrompts uhp = null;
+	private TGPrompts tg = null;
 	private HashSet<String> deadPlayers = new HashSet<String>();
 	
 	@Override
 	public void onEnable() {
 		this.saveDefaultConfig();
 		 
-		File positions = new File("plugins/UHPlugin/positions.txt");
+		File positions = new File("plugins/TaupeGun/positions.txt");
 		if (positions.exists()) {
 			BufferedReader br = null;
 			try {
@@ -79,9 +79,9 @@ public final class UHPlugin extends JavaPlugin implements ConversationAbandonedL
 			}
 			
 		}
-		uhp = new UHPrompts(this);
+		tg = new TGPrompts(this);
 		logger = Bukkit.getLogger();
-		logger.info("UHPlugin loaded");
+		logger.info("TaupeGun loaded");
 		random = new Random();
 		
 		goldenMelon = new ShapelessRecipe(new ItemStack(Material.SPECKLED_MELON));
@@ -101,7 +101,7 @@ public final class UHPlugin extends JavaPlugin implements ConversationAbandonedL
 			this.getServer().addRecipe(compass);
 		}
 		
-		getServer().getPluginManager().registerEvents(new UHPluginListener(this), this);
+		getServer().getPluginManager().registerEvents(new TGPluginListener(this), this);
 		
 		sb = Bukkit.getServer().getScoreboardManager().getNewScoreboard();
 		Objective obj = sb.registerNewObjective("Vie", "dummy");
@@ -117,16 +117,16 @@ public final class UHPlugin extends JavaPlugin implements ConversationAbandonedL
 		
 		cfs.put("teamPrompt", new ConversationFactory(this)
 		.withModality(true)
-		.withFirstPrompt(uhp.getTNP())
-		.withEscapeSequence("/cancel")
+		.withFirstPrompt(tg.getTNP())
+		.withEscapeSequence("cancel")
 		.thatExcludesNonPlayersWithMessage("Il faut être un joueur ingame.")
 		.withLocalEcho(false)
 		.addConversationAbandonedListener(this));
 		
 		cfs.put("playerPrompt", new ConversationFactory(this)
 		.withModality(true)
-		.withFirstPrompt(uhp.getPP())
-		.withEscapeSequence("/cancel")
+		.withFirstPrompt(tg.getPP())
+		.withEscapeSequence("cancel")
 		.thatExcludesNonPlayersWithMessage("Il faut être un joueur ingame.")
 		.withLocalEcho(false)
 		.addConversationAbandonedListener(this));
@@ -160,9 +160,9 @@ public final class UHPlugin extends JavaPlugin implements ConversationAbandonedL
 		obj.getScore(Bukkit.getOfflinePlayer(ChatColor.WHITE+formatter.format(this.minutesLeft)+ChatColor.GRAY+":"+ChatColor.WHITE+formatter.format(this.secondsLeft))).setScore(1);
 	}
 
-	private ArrayList<UHTeam> getAliveTeams() {
-		ArrayList<UHTeam> aliveTeams = new ArrayList<UHTeam>();
-		for (UHTeam t : teams) {
+	private ArrayList<TGTeam> getAliveTeams() {
+		ArrayList<TGTeam> aliveTeams = new ArrayList<TGTeam>();
+		for (TGTeam t : teams) {
 			for (Player p : t.getPlayers()) {
 				if (p.isOnline() && !aliveTeams.contains(t)) aliveTeams.add(t);
 			}
@@ -172,11 +172,11 @@ public final class UHPlugin extends JavaPlugin implements ConversationAbandonedL
 
 	@Override
 	public void onDisable() {
-		logger.info("UHPlugin unloaded");
+		logger.info("TaupeGun unloaded");
 	}
 	
 	public boolean onCommand(final CommandSender s, Command c, String l, String[] a) {
-		if (c.getName().equalsIgnoreCase("uh")) {
+		if (c.getName().equalsIgnoreCase("taupegun")) {
 			if (!(s instanceof Player)) {
 				s.sendMessage(ChatColor.RED+"Vous devez être un joueur");
 				return true;
@@ -187,13 +187,13 @@ public final class UHPlugin extends JavaPlugin implements ConversationAbandonedL
 				return true;
 			}
 			if (a.length == 0) {
-				pl.sendMessage("Usage : /uh <start|shift|team|addspawn|generatewalls>");
-				return true;
+				//pl.sendMessage("Usage : /uh <start|shift|team|addspawn|generatewalls>");
+				return false;
 			}
 			if (a[0].equalsIgnoreCase("start")) {
 				if (teams.size() == 0) {
 					for (Player p : getServer().getOnlinePlayers()) {
-						UHTeam uht = new UHTeam(p.getName(), p.getName(), ChatColor.WHITE, this);
+						TGTeam uht = new TGTeam(p.getName(), p.getName(), ChatColor.WHITE, this);
 						uht.addPlayer(p);
 						teams.add(uht);
 					}
@@ -203,7 +203,7 @@ public final class UHPlugin extends JavaPlugin implements ConversationAbandonedL
 					return true;
 				}
 				LinkedList<Location> unusedTP = loc;
-				for (final UHTeam t : teams) {
+				for (final TGTeam t : teams) {
 					final Location lo = unusedTP.get(this.random.nextInt(unusedTP.size()));
 					Bukkit.getScheduler().runTaskLater(this, new BukkitRunnable() {
 
@@ -276,7 +276,7 @@ public final class UHPlugin extends JavaPlugin implements ConversationAbandonedL
 				Inventory iv = this.getServer().createInventory(pl, 54, "- Teams -");
 				Integer slot = 0;
 				ItemStack is = null;
-				for (UHTeam t : teams) {
+				for (TGTeam t : teams) {
 					is = new ItemStack(Material.BEACON, t.getPlayers().size());
 					ItemMeta im = is.getItemMeta();
 					im.setDisplayName(t.getChatColor()+t.getDisplayName());
@@ -428,15 +428,15 @@ public final class UHPlugin extends JavaPlugin implements ConversationAbandonedL
 		return sb;
 	}
 	
-	public UHTeam getTeam(String name) {
-		for(UHTeam t : teams) {
+	public TGTeam getTeam(String name) {
+		for(TGTeam t : teams) {
 			if (t.getName().equalsIgnoreCase(name)) return t;
 		}
 		return null;
 	}
 
-	public UHTeam getTeamForPlayer(Player p) {
-		for(UHTeam t : teams) {
+	public TGTeam getTeamForPlayer(Player p) {
+		for(TGTeam t : teams) {
 			if (t.getPlayers().contains(p)) return t;
 		}
 		return null;
@@ -455,7 +455,7 @@ public final class UHPlugin extends JavaPlugin implements ConversationAbandonedL
 	
 	public boolean createTeam(String name, ChatColor color) {
 		if (teams.size() <= 50) {
-			teams.add(new UHTeam(name, name, color, this));
+			teams.add(new TGTeam(name, name, color, this));
 			return true;
 		}
 		return false;
@@ -474,7 +474,7 @@ public final class UHPlugin extends JavaPlugin implements ConversationAbandonedL
 	}
 	
 	public String getScoreboardName() {
-		String s = this.getConfig().getString("scoreboard", "Kill The Patrick");
+		String s = this.getConfig().getString("scoreboard", "Taupe Gun");
 		return s.substring(0, Math.min(s.length(), 16));
 	}
 

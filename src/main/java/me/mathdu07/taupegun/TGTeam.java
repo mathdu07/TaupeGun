@@ -1,4 +1,4 @@
-package me.azenet.UHPlugin;
+package me.mathdu07.taupegun;
 
 import java.util.ArrayList;
 
@@ -8,14 +8,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
-public class UHTeam {
+public class TGTeam {
 	private String name;
 	private String displayName;
 	private ChatColor color;
-	private UHPlugin plugin;
+	private TGPlugin plugin;
 	private ArrayList<Player> players = new ArrayList<Player>();
 	
-	public UHTeam(String name, String displayName, ChatColor color, UHPlugin plugin) {
+	public TGTeam(String name, String displayName, ChatColor color, TGPlugin plugin) {
 		this.name = name;
 		this.displayName = displayName;
 		this.color = color;

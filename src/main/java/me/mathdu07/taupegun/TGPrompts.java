@@ -1,4 +1,4 @@
-package me.azenet.UHPlugin;
+package me.mathdu07.taupegun;
 
 import java.util.ArrayList;
 
@@ -11,11 +11,11 @@ import org.bukkit.conversations.ValidatingPrompt;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
-public class UHPrompts {
+public class TGPrompts {
 
-	private UHPlugin p = null;
+	private TGPlugin p = null;
 	
-	public UHPrompts(UHPlugin p) {
+	public TGPrompts(TGPlugin p) {
 		this.p = p;
 	}
 	
@@ -23,7 +23,7 @@ public class UHPrompts {
 
 		@Override
 		public String getPromptText(ConversationContext context) {
-			return ChatColor.GRAY+"Veuillez entrer un nom pour la team. /cancel pour annuler.";
+			return ChatColor.GRAY+"Veuillez entrer un nom pour la team. Tapez cancel pour annuler.";
 		}
 
 		@Override
@@ -71,7 +71,7 @@ public class UHPrompts {
 				colorsString += s+ChatColor.WHITE+", ";
 			}
 			colorsString = colorsString.substring(0, colorsString.length()-2);
-			return ChatColor.GRAY+"Veuillez entrer une couleur pour la team. /cancel pour annuler.\n"+colorsString;
+			return ChatColor.GRAY+"Veuillez entrer une couleur pour la team. Tapez cancel pour annuler.\n"+colorsString;
 		}
 
 		@Override
