@@ -7,3 +7,9 @@ commands:
       description: Taupe Gun
       usage: "Usage : /<command> <start|shift|team|addspawn|generatewalls>"
       aliases: [tg]
+   t:
+      description: "Chat spécial pour les taupes"
+      usage: "Usage : /<command> <message>"
+   reveal:
+      description: "Révéle la taupe"
+      usage: "Usage : /<command>"

@@ -18,6 +18,7 @@ import org.bukkit.Difficulty;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -35,6 +36,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.util.StringUtil;
 
 public final class TGPlugin extends JavaPlugin implements ConversationAbandonedListener {
 
@@ -55,6 +57,8 @@ public final class TGPlugin extends JavaPlugin implements ConversationAbandonedL
 	private HashMap<String, ConversationFactory> cfs = new HashMap<String, ConversationFactory>();
 	private TGPrompts tg = null;
 	private HashSet<String> deadPlayers = new HashSet<String>();
+	private ArrayList<Player> taupes = new ArrayList<Player>();
+	private TGTeam taupeTeam = null;
 	
 	@Override
 	public void onEnable() {
@@ -176,6 +180,7 @@ public final class TGPlugin extends JavaPlugin implements ConversationAbandonedL
 	}
 	
 	public boolean onCommand(final CommandSender s, Command c, String l, String[] a) {
+	    
 		if (c.getName().equalsIgnoreCase("taupegun")) {
 			if (!(s instanceof Player)) {
 				s.sendMessage(ChatColor.RED+"Vous devez être un joueur");
@@ -392,6 +397,71 @@ public final class TGPlugin extends JavaPlugin implements ConversationAbandonedL
 				return true;
 			}
 		}
+		else if (c.getName().equalsIgnoreCase("t"))
+		{
+		    if (!(s instanceof Player))
+		    {
+		        s.sendMessage(ChatColor.RED + "Vous devez être un joueur pour utiliser cette commande.");
+		        return true;
+		    }
+		    
+		    Player p = (Player) s;
+		    
+		    if (isTaupe(p))
+		    {
+		        if (a.length == 0)
+		            return false;
+		        
+		        sendMessageToTaupes(p, join(a, " "));
+		    }
+		    else
+		    {
+		        p.sendMessage(ChatColor.RED + "Tu n'es pas une taupe !");
+		    }
+		    
+		    return true;
+		}
+		else if (c.getName().equalsIgnoreCase("reveal"))
+		{
+		    if (!(s instanceof Player))
+            {
+                s.sendMessage(ChatColor.RED + "Vous devez être un joueur pour utiliser cette commande.");
+                return true;
+            }
+            
+            Player p = (Player) s;
+            
+            if (isTaupe(p))
+            {
+                if (isTaupeRevealed(p))
+                {
+                    p.sendMessage(ChatColor.RED + "Vous êtes déjà révélé");
+                    return true;
+                }
+                
+                if (taupeTeam == null)
+                {
+                    taupeTeam = new TGTeam("Taupes", "Taupes", ChatColor.RED, this);
+                }
+                
+                TGTeam oldTeam = getTeamForPlayer(p);
+                oldTeam.removePlayer(p);
+                taupeTeam.addPlayer(p);
+                
+                getServer().broadcastMessage(ChatColor.GOLD + "--- " + p.getName() + " se révèle être une taupe ! ---");
+                for (Player pp : getServer().getOnlinePlayers())
+                {
+                    pp.playSound(pp.getLocation(), Sound.GHAST_SCREAM, 1f, 1f);
+                }
+            }
+            else
+            {
+                p.sendMessage(ChatColor.RED + "Tu n'es pas une taupe !");
+            }
+            
+            return true;
+		}
+		
 		return false;
 	}
 	
@@ -408,7 +478,7 @@ public final class TGPlugin extends JavaPlugin implements ConversationAbandonedL
 		        int taupeId = random.nextInt(players.size());
 		        
 		        Player taupe = players.get(taupeId);
-		        t.setTaupe(taupe);
+		        taupes.add(taupe);
 		        taupe.sendMessage(ChatColor.RED + "------------------------");
 		        taupe.sendMessage(ChatColor.GOLD + "Vous avez été désigné comme taupe !");
 		        taupe.sendMessage(ChatColor.GOLD + "Votre objectif est de ruiner votre équipe, et de rejoindre les autre taupes");
@@ -506,19 +576,53 @@ public final class TGPlugin extends JavaPlugin implements ConversationAbandonedL
 	}
 	
 	public ArrayList<Player> getTaupes()
-	{
-	    ArrayList<Player> taupes = new ArrayList<Player>();
-	    
-	    for (TGTeam team : teams)
-	    {
-	        taupes.add(team.getTaupe());
-	    }
-	    
+	{	    
 	    return taupes;
 	}
 	
 	public boolean isTaupe(Player p)
 	{
 	    return getTaupes().contains(p);
+	}
+	
+	public boolean isTaupeRevealed(Player p)
+	{
+	    if (taupeTeam == null)
+	        return false;
+	    
+	    else
+	        return taupeTeam.getPlayers().contains(p);
+	}
+	
+	public void sendMessageToTaupes(Player taupe, String msg)
+	{
+	    if (!isTaupe(taupe))
+	        return;
+	    
+	    int teamId = teams.indexOf(getTeamForPlayer(taupe));
+	    String msgFinal = ChatColor.GOLD + "[Taupes] " + (isTaupeRevealed(taupe)
+	            ? ChatColor.RED + "<" + taupe.getName() + "> "
+	            : ChatColor.RED + "<???(" + (teamId+1) + ")> ")
+	            + ChatColor.RESET + msg;
+	    
+	    for (Player p : getTaupes())
+	    {
+	        p.sendMessage(msgFinal);
+	    }
+	}
+	
+	public static String join(String[] array, String gap)
+	{
+	    if (array.length == 0)
+	        return "";
+	    
+	    String result = array[0];
+	    
+	    for (int i = 1; i < array.length; i++)
+	    {
+	        result += gap + array[i];
+	    }
+	    
+	    return result;
 	}
 }
