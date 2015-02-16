@@ -82,6 +82,8 @@ public class TGPluginListener implements Listener {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+		ev.setDeathMessage(ev.getEntity().getName() + " est mort.");
 
 	}
 	
