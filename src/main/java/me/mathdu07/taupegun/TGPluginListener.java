@@ -24,6 +24,7 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.inventory.BrewEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -33,6 +34,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerLoginEvent.Result;
 import org.bukkit.event.weather.WeatherChangeEvent;
+import org.bukkit.inventory.BrewerInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
@@ -300,5 +302,18 @@ public class TGPluginListener implements Listener {
 		if (!p.getConfig().getBoolean("weather")) {
 			ev.setCancelled(true);
 		}
+	}
+	
+	@EventHandler
+	public void onBrew(BrewEvent be)
+	{
+	    BrewerInventory inv = be.getContents();
+	    
+	    if (inv.getIngredient().getType().equals(Material.BLAZE_POWDER)
+	        || inv.getIngredient().getType().equals(Material.GLOWSTONE_DUST))
+	    {
+	        be.setCancelled(true);
+	        p.getLogger().info("Blocage de la production de potion de force ou d'une potion niveau 2");
+	    }
 	}
 }
