@@ -1,6 +1,6 @@
 name: TaupeGun
 main: me.mathdu07.taupegun.TGPlugin
-version: 0.1
+version: 1.0
 
 commands:
    taupegun:
