@@ -5,7 +5,7 @@ version: 1.1-SNAPSHOT
 commands:
    taupegun:
       description: Taupe Gun
-      usage: "Usage : /<command> <start|shift|team|addspawn|generatewalls>"
+      usage: "Usage : /<command> <start|shift|team|addspawn|generatewalls|pause>"
       aliases: [tg]
    t:
       description: "Chat spécial pour les taupes"

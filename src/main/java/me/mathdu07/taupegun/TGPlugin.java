@@ -61,6 +61,7 @@ public final class TGPlugin extends JavaPlugin implements ConversationAbandonedL
 	private ArrayList<String> taupes = new ArrayList<String>();
 	private Set<String> taupesClaimed = new HashSet<String>();
 	private TGTeam taupeTeam = null;
+	private boolean pause = false;
 	
 	@Override
 	public void onEnable() {
@@ -256,6 +257,10 @@ public final class TGPlugin extends JavaPlugin implements ConversationAbandonedL
 				new BukkitRunnable() {
 					@Override
 					public void run() {
+						
+						if (pause)
+							return;
+						
 						setMatchInfo();
 						secondsLeft--;
 						if (secondsLeft == -1) {
@@ -424,6 +429,39 @@ public final class TGPlugin extends JavaPlugin implements ConversationAbandonedL
 					return true;
 				}
 				pl.sendMessage(ChatColor.GRAY+"Génération terminée.");
+				return true;
+			}
+			else if (a[0].equalsIgnoreCase("pause"))
+			{
+				if (!isGameRunning())
+				{
+					s.sendMessage("Le jeu n'a pas encore démarrer");
+					return true;
+				}
+				
+				if (!pause)
+					Bukkit.broadcastMessage(ChatColor.GOLD + "Le jeu a été mis en pause.");
+				else
+					Bukkit.broadcastMessage(ChatColor.GOLD + "Le jeu va reprendre dans 5 secondes...");
+				
+				if (!pause)
+				{
+					pause = true;
+				}
+				else
+				{
+					new BukkitRunnable()
+					{
+						@Override
+						public void run()
+						{
+							pause = false;
+							Bukkit.broadcastMessage(ChatColor.GREEN + "Le jeu est reparti!");
+						}
+						
+					}.runTaskLater(this, 100L);
+				}
+				
 				return true;
 			}
 		}
@@ -645,6 +683,11 @@ public final class TGPlugin extends JavaPlugin implements ConversationAbandonedL
 	    
 	    else
 	        return taupeTeam.getPlayers().contains(p);
+	}
+	
+	public boolean isGamePaused()
+	{
+		return pause;
 	}
 	
 	public void sendMessageToTaupes(Player taupe, String msg)

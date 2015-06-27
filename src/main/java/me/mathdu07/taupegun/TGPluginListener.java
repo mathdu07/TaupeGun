@@ -19,10 +19,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
+import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.BrewEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
@@ -148,15 +151,56 @@ public class TGPluginListener implements Listener {
 	@EventHandler
 	public void onBlockBreakEvent(final BlockBreakEvent ev) {
 		if (!this.p.isGameRunning()) ev.setCancelled(true);
+		
+		if (p.isGamePaused()) ev.setCancelled(true);
 	}
 	
 	@EventHandler
 	public void onBlockPlaceEvent(final BlockPlaceEvent ev) {
 		if (!this.p.isGameRunning()) ev.setCancelled(true);
+		
+		if (p.isGamePaused()) ev.setCancelled(true);
+	}
+	
+	@EventHandler
+	public void onPlayerDamage(final EntityDamageEvent ev)
+	{
+		if (p.isGamePaused())
+		{
+			if (ev.getEntity() instanceof Player)
+			{
+				ev.setCancelled(true);
+			}
+			else
+			{
+				if (ev instanceof EntityDamageByEntityEvent)
+				{
+					EntityDamageByEntityEvent edbee = (EntityDamageByEntityEvent) ev;
+					
+					if (edbee.getDamager() instanceof Player)
+					{
+						ev.setCancelled(true);
+					}
+				}
+			}
+		}
 	}
 	
 	@EventHandler
 	public void onPlayerMove(PlayerMoveEvent ev) {
+		
+		if (p.isGamePaused())
+		{
+			Location from = ev.getFrom();
+			Location to = ev.getTo();
+			to.setX(from.getX());
+			to.setY(from.getY());
+			to.setZ(from.getZ());
+			ev.setTo(to);
+			
+			return;
+		}
+		
 		Location l = ev.getTo();
 		Integer mapSize = p.getConfig().getInt("map.size");
 		Integer halfMapSize = (int) Math.floor(mapSize/2);
@@ -178,7 +222,13 @@ public class TGPluginListener implements Listener {
 		if (x < limitXInf || x > limitXSup || z < limitZInf || z > limitZSup) {
 			ev.setCancelled(true);
 		}
-	}	
+	}
+	
+	@EventHandler
+	public void onFoodLevelChange(final FoodLevelChangeEvent ev)
+	{
+		if (p.isGamePaused())	ev.setCancelled(true);
+	}
 
 	@EventHandler
 	public void onInventoryClick(InventoryClickEvent ev) {
@@ -283,6 +333,13 @@ public class TGPluginListener implements Listener {
 	@SuppressWarnings("deprecation")
 	@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent ev) {
+		
+		if (p.isGamePaused())
+		{
+			ev.setCancelled(true);
+			return;
+		}
+		
 		if ((ev.getAction() == Action.RIGHT_CLICK_AIR || ev.getAction() == Action.RIGHT_CLICK_BLOCK) && ev.getPlayer().getItemInHand().getType() == Material.COMPASS && p.getConfig().getBoolean("compass")) {
 			Player pl = ev.getPlayer();
 			Boolean foundRottenFlesh = false;
