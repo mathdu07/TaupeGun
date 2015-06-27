@@ -269,6 +269,32 @@ public final class TGPlugin extends JavaPlugin implements ConversationAbandonedL
 					} 
 				}.runTaskTimer(this, 20L, 20L);
 				
+				new BukkitRunnable() {
+					
+					@Override
+					public void run()
+					{
+						 for (TGTeam t : teams)
+						 {
+							 ArrayList<Player> players = t.getPlayers();
+						     int taupeId = random.nextInt(players.size());
+						     
+						     Player taupe = players.get(taupeId);
+						     taupes.add(taupe);
+						     taupe.sendMessage(ChatColor.RED + "------------------------");
+						     taupe.sendMessage(ChatColor.GOLD + "Vous avez été désigné comme taupe !");
+						     taupe.sendMessage(ChatColor.GOLD + "Votre objectif est de ruiner votre équipe, et de rejoindre les autre taupes");
+						     taupe.sendMessage(ChatColor.GOLD + "Pour cela, vous avez 2 commandes spéciales : ");
+						     taupe.sendMessage(ChatColor.GOLD + "/reveal Pour vous révéler, histoire de rigoler ;)");
+						     taupe.sendMessage(ChatColor.GOLD + "/t <message> Pour écrire à toutes les taupes,");
+						     taupe.sendMessage(ChatColor.GOLD + "les messages restent anonymes tant que vous ne vous êtes pas révéler");
+						     taupe.sendMessage(ChatColor.GOLD + "Bonne chance petite taupe, ne te fais pas spot !");
+						     taupe.sendMessage(ChatColor.RED + "------------------------");
+						 }
+					}
+					
+				}.runTaskLater(this, 20 * getConfig().getInt("taupe-drawing-time"));
+				
 				Bukkit.getServer().broadcastMessage(ChatColor.GREEN+"--- GO ---");
 				this.gameRunning = true;
 				return true;
@@ -468,29 +494,6 @@ public final class TGPlugin extends JavaPlugin implements ConversationAbandonedL
 	
 	public void shiftEpisode() {
 		this.episode++;
-		
-		if (episode == 2)
-		{
-		    Random random = new Random();
-		    
-		    for (TGTeam t : teams)
-		    {
-		        ArrayList<Player> players = t.getPlayers();
-		        int taupeId = random.nextInt(players.size());
-		        
-		        Player taupe = players.get(taupeId);
-		        taupes.add(taupe);
-		        taupe.sendMessage(ChatColor.RED + "------------------------");
-		        taupe.sendMessage(ChatColor.GOLD + "Vous avez été désigné comme taupe !");
-		        taupe.sendMessage(ChatColor.GOLD + "Votre objectif est de ruiner votre équipe, et de rejoindre les autre taupes");
-		        taupe.sendMessage(ChatColor.GOLD + "Pour cela, vous avez 2 commandes spéciales : ");
-		        taupe.sendMessage(ChatColor.GOLD + "/reveal Pour vous révéler, histoire de rigoler ;)");
-		        taupe.sendMessage(ChatColor.GOLD + "/t <message> Pour écrire à toutes les taupes,");
-		        taupe.sendMessage(ChatColor.GOLD + "les messages restent anonymes tant que vous ne vous êtes pas révéler");
-		        taupe.sendMessage(ChatColor.GOLD + "Bonne chance petite taupe, ne te fais pas spot !");
-		        taupe.sendMessage(ChatColor.RED + "------------------------");
-		    }
-		}
 	}
 	
 	public boolean isGameRunning() {

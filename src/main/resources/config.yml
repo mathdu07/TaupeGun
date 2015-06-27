@@ -14,3 +14,4 @@ scoreboard: Taupe Gun
 kick-on-death:
     kick: true
     time: 30
+taupe-drawing-time: 2400
