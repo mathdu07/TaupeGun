@@ -57,13 +57,6 @@ public class TGPluginListener implements Listener {
 			pp.playSound(pp.getLocation(), Sound.WITHER_SPAWN, 1F, 1F);
 		}
 		this.p.addDead(ev.getEntity().getName());
-		new BukkitRunnable() {
-			
-			@Override
-			public void run() {
-				p.setLife((Player)ev.getEntity(), 0);
-			}
-		}.runTaskLater(this.p, 1L);
 		
 		if (this.p.getConfig().getBoolean("kick-on-death.kick", true)) {
 			new BukkitRunnable() {

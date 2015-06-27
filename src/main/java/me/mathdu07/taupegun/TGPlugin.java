@@ -107,7 +107,7 @@ public final class TGPlugin extends JavaPlugin implements ConversationAbandonedL
 		getServer().getPluginManager().registerEvents(new TGPluginListener(this), this);
 		
 		sb = Bukkit.getServer().getScoreboardManager().getNewScoreboard();
-		Objective obj = sb.registerNewObjective("Vie", "dummy");
+		Objective obj = sb.registerNewObjective("Vie", "health");
 		obj.setDisplayName("Vie");
 		obj.setDisplaySlot(DisplaySlot.PLAYER_LIST);
 		
@@ -150,7 +150,7 @@ public final class TGPlugin extends JavaPlugin implements ConversationAbandonedL
 			
 		}
 		Random r = new Random();
-		sbobjname = "KTP"+r.nextInt(10000000);
+		sbobjname = "TG"+r.nextInt(10000000);
 		obj = sb.registerNewObjective(sbobjname, "dummy");
 		obj = sb.getObjective(sbobjname);
 
@@ -227,7 +227,6 @@ public final class TGPlugin extends JavaPlugin implements ConversationAbandonedL
 								p.closeInventory();
 								p.getActivePotionEffects().clear();
 								p.setCompassTarget(lo);
-								setLife(p, 20);
 							}
 						}
 					}.runTaskLater(this, 10L);
@@ -502,19 +501,10 @@ public final class TGPlugin extends JavaPlugin implements ConversationAbandonedL
 
 	public void updatePlayerListName(Player p) {
 		p.setScoreboard(sb);
-		Integer he = (int) Math.round(p.getHealth());
-		sb.getObjective("Vie").getScore(p.getName()).setScore(he);
 	}
 
 	public void addToScoreboard(Player player) {
 		player.setScoreboard(sb);
-		sb.getObjective("Vie").getScore(player.getName()).setScore(0);
-		this.updatePlayerListName(player);
-	}
-
-	public void setLife(Player entity, int i) {
-		entity.setScoreboard(sb);
-		sb.getObjective("Vie").getScore(entity.getName()).setScore(i);
 	}
 
 	public boolean isTakingDamage() {
