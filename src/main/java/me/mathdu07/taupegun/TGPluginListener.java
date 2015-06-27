@@ -32,6 +32,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerLoginEvent.Result;
 import org.bukkit.event.weather.WeatherChangeEvent;
 import org.bukkit.inventory.BrewerInventory;
@@ -40,6 +41,7 @@ import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scoreboard.Team;
 
 public class TGPluginListener implements Listener {
 
@@ -103,8 +105,20 @@ public class TGPluginListener implements Listener {
 			ev.getPlayer().setGameMode(GameMode.CREATIVE);
 			Location l = ev.getPlayer().getWorld().getSpawnLocation();
 			ev.getPlayer().teleport(l.add(0,1,0));
+			ev.getPlayer().getInventory().clear();
+			ev.getPlayer().setHealth(ev.getPlayer().getHealth());
+			ev.getPlayer().setFoodLevel(20);
 		}
 		p.addToScoreboard(ev.getPlayer());
+		
+		// Re-add online player to his/her team
+		Team team = p.getScoreboard().getEntryTeam(ev.getPlayer().getName());
+		if (team != null)
+		{
+			String teamName = team.getName();
+			p.getTeam(teamName).getPlayers().add(ev.getPlayer());
+		}
+		
 		new BukkitRunnable() {
 			
 			@Override
@@ -112,6 +126,23 @@ public class TGPluginListener implements Listener {
 				p.updatePlayerListName(ev.getPlayer());
 			}
 		}.runTaskLater(this.p, 1L);
+	}
+	
+	@EventHandler
+	public void onPlayerLeave(final PlayerQuitEvent ev)
+	{
+		Player pl = ev.getPlayer();
+		
+		if (p.isGameRunning())
+		{
+			// Remove online player from his/her team
+			TGTeam team = p.getTeamForPlayer(pl);
+			
+			if (team != null)
+			{
+				team.getPlayers().remove(pl);
+			}
+		}
 	}
 	
 	@EventHandler

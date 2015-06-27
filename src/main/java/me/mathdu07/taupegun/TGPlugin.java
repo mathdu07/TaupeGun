@@ -34,8 +34,6 @@ import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.potion.Potion;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
@@ -60,7 +58,7 @@ public final class TGPlugin extends JavaPlugin implements ConversationAbandonedL
 	private HashMap<String, ConversationFactory> cfs = new HashMap<String, ConversationFactory>();
 	private TGPrompts tg = null;
 	private HashSet<String> deadPlayers = new HashSet<String>();
-	private ArrayList<Player> taupes = new ArrayList<Player>();
+	private ArrayList<String> taupes = new ArrayList<String>();
 	private Set<String> taupesClaimed = new HashSet<String>();
 	private TGTeam taupeTeam = null;
 	
@@ -284,7 +282,7 @@ public final class TGPlugin extends JavaPlugin implements ConversationAbandonedL
 						     int taupeId = random.nextInt(players.size());
 						     
 						     Player taupe = players.get(taupeId);
-						     taupes.add(taupe);
+						     taupes.add(taupe.getName());
 						     taupe.sendMessage(ChatColor.RED + "------------------------");
 						     taupe.sendMessage(ChatColor.GOLD + "Vous avez été désigné comme taupe !");
 						     taupe.sendMessage(ChatColor.GOLD + "Votre objectif est de ruiner votre équipe, et de rejoindre les autre taupes");
@@ -298,7 +296,7 @@ public final class TGPlugin extends JavaPlugin implements ConversationAbandonedL
 						 }
 					}
 					
-				}.runTaskLater(this, 20 * getConfig().getInt("taupe-drawing-time"));
+				}.runTaskLater(this, 20 * (getConfig().getInt("taupe-drawing-time") + 1));
 				
 				Bukkit.getServer().broadcastMessage(ChatColor.GREEN+"--- GO ---");
 				this.gameRunning = true;
@@ -567,6 +565,9 @@ public final class TGPlugin extends JavaPlugin implements ConversationAbandonedL
 	}
 	
 	public TGTeam getTeam(String name) {
+		if (name.equals("Taupes"))
+			return taupeTeam;
+		
 		for(TGTeam t : teams) {
 			if (t.getName().equalsIgnoreCase(name)) return t;
 		}
@@ -621,8 +622,15 @@ public final class TGPlugin extends JavaPlugin implements ConversationAbandonedL
 	}
 	
 	public ArrayList<Player> getTaupes()
-	{	    
-	    return taupes;
+	{
+		ArrayList<Player> players = new ArrayList<Player>();
+		
+		for (String taupe : taupes)
+		{
+			players.add(Bukkit.getPlayerExact(taupe));
+		}
+		
+	    return players;
 	}
 	
 	public boolean isTaupe(Player p)
