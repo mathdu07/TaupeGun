@@ -44,13 +44,13 @@ public class TGTeam {
 
 	public void addPlayer(Player playerExact) {
 		players.add(playerExact);
-		plugin.getScoreboard().getTeam(this.name).addPlayer(playerExact);
+		plugin.getScoreboard().getTeam(this.name).addEntry(playerExact.getName());
 	}
 	
 	public void removePlayer(Player p)
 	{
 	    players.remove(p);
-	    plugin.getScoreboard().getTeam(name).removePlayer(p);
+	    plugin.getScoreboard().getTeam(name).removeEntry(p.getName());
 	}
 
 	public void teleportTo(Location lo) {

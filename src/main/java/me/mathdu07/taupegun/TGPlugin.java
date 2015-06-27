@@ -36,7 +36,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.util.StringUtil;
 
 public final class TGPlugin extends JavaPlugin implements ConversationAbandonedListener {
 
@@ -157,11 +156,11 @@ public final class TGPlugin extends JavaPlugin implements ConversationAbandonedL
 
 		obj.setDisplayName(this.getScoreboardName());
 		obj.setDisplaySlot(DisplaySlot.SIDEBAR);
-		obj.getScore(Bukkit.getOfflinePlayer(ChatColor.GRAY+"Episode "+ChatColor.WHITE+episode)).setScore(5);
-		obj.getScore(Bukkit.getOfflinePlayer(ChatColor.WHITE+""+Bukkit.getServer().getOnlinePlayers().length+ChatColor.GRAY+" joueurs")).setScore(4);
-		obj.getScore(Bukkit.getOfflinePlayer(ChatColor.WHITE+""+getAliveTeams().size()+ChatColor.GRAY+" teams")).setScore(3);
-		obj.getScore(Bukkit.getOfflinePlayer("")).setScore(2);
-		obj.getScore(Bukkit.getOfflinePlayer(ChatColor.WHITE+formatter.format(this.minutesLeft)+ChatColor.GRAY+":"+ChatColor.WHITE+formatter.format(this.secondsLeft))).setScore(1);
+		obj.getScore(ChatColor.GRAY+"Episode "+ChatColor.WHITE+episode).setScore(5);
+		obj.getScore(ChatColor.WHITE+""+Bukkit.getServer().getOnlinePlayers().size()+ChatColor.GRAY+" joueurs").setScore(4);
+		obj.getScore(ChatColor.WHITE+""+getAliveTeams().size()+ChatColor.GRAY+" teams").setScore(3);
+		obj.getScore("").setScore(2);
+		obj.getScore(ChatColor.WHITE+formatter.format(this.minutesLeft)+ChatColor.GRAY+":"+ChatColor.WHITE+formatter.format(this.secondsLeft)).setScore(1);
 	}
 
 	private ArrayList<TGTeam> getAliveTeams() {
@@ -210,7 +209,7 @@ public final class TGPlugin extends JavaPlugin implements ConversationAbandonedL
 				LinkedList<Location> unusedTP = loc;
 				for (final TGTeam t : teams) {
 					final Location lo = unusedTP.get(this.random.nextInt(unusedTP.size()));
-					Bukkit.getScheduler().runTaskLater(this, new BukkitRunnable() {
+					new BukkitRunnable() {
 
 						@Override
 						public void run() {
@@ -231,18 +230,19 @@ public final class TGPlugin extends JavaPlugin implements ConversationAbandonedL
 								setLife(p, 20);
 							}
 						}
-					}, 10L);
+					}.runTaskLater(this, 10L);
 					
 					unusedTP.remove(lo);
 				}
-				Bukkit.getScheduler().runTaskLater(this, new BukkitRunnable() {
+				
+				new BukkitRunnable() {
 
 					@Override
 					public void run() {
 						damageIsOn = true;
 					}
-				}, 600L);
-				World w = Bukkit.getOnlinePlayers()[0].getWorld();
+				}.runTaskLater(this, 600L);
+				World w = Bukkit.getOnlinePlayers().iterator().next().getWorld();
 				w.setGameRuleValue("doDaylightCycle", ((Boolean)getConfig().getBoolean("daylightCycle.do")).toString());
 				w.setTime(getConfig().getLong("daylightCycle.time"));
 				w.setStorm(false);
@@ -250,7 +250,8 @@ public final class TGPlugin extends JavaPlugin implements ConversationAbandonedL
 				this.episode = 1;
 				this.minutesLeft = getEpisodeLength();
 				this.secondsLeft = 0;
-				Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new BukkitRunnable() {
+				
+				new BukkitRunnable() {
 					@Override
 					public void run() {
 						setMatchInfo();
@@ -266,7 +267,7 @@ public final class TGPlugin extends JavaPlugin implements ConversationAbandonedL
 							shiftEpisode();
 						}
 					} 
-				}, 20L, 20L);
+				}.runTaskTimer(this, 20L, 20L);
 				
 				Bukkit.getServer().broadcastMessage(ChatColor.GREEN+"--- GO ---");
 				this.gameRunning = true;
@@ -499,18 +500,18 @@ public final class TGPlugin extends JavaPlugin implements ConversationAbandonedL
 	public void updatePlayerListName(Player p) {
 		p.setScoreboard(sb);
 		Integer he = (int) Math.round(p.getHealth());
-		sb.getObjective("Vie").getScore(p).setScore(he);
+		sb.getObjective("Vie").getScore(p.getName()).setScore(he);
 	}
 
 	public void addToScoreboard(Player player) {
 		player.setScoreboard(sb);
-		sb.getObjective("Vie").getScore(player).setScore(0);
+		sb.getObjective("Vie").getScore(player.getName()).setScore(0);
 		this.updatePlayerListName(player);
 	}
 
 	public void setLife(Player entity, int i) {
 		entity.setScoreboard(sb);
-		sb.getObjective("Vie").getScore(entity).setScore(i);
+		sb.getObjective("Vie").getScore(entity.getName()).setScore(i);
 	}
 
 	public boolean isTakingDamage() {

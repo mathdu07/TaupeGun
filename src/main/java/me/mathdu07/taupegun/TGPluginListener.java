@@ -52,26 +52,27 @@ public class TGPluginListener implements Listener {
 	@EventHandler
 	public void onPlayerDeath(final PlayerDeathEvent ev) {
 		Location l = ev.getEntity().getLocation();
-		Player[] ps = Bukkit.getServer().getOnlinePlayers();
+		Player[] ps = Bukkit.getServer().getOnlinePlayers().toArray(new Player[Bukkit.getServer().getOnlinePlayers().size()]);
 		for (Player pp : ps) {
 			pp.playSound(pp.getLocation(), Sound.WITHER_SPAWN, 1F, 1F);
 		}
 		this.p.addDead(ev.getEntity().getName());
-		Bukkit.getScheduler().runTaskLater(this.p, new BukkitRunnable() {
+		new BukkitRunnable() {
 			
 			@Override
 			public void run() {
 				p.setLife((Player)ev.getEntity(), 0);
 			}
-		}, 1L);
+		}.runTaskLater(this.p, 1L);
+		
 		if (this.p.getConfig().getBoolean("kick-on-death.kick", true)) {
-			Bukkit.getScheduler().runTaskLater(this.p, new BukkitRunnable() {
+			new BukkitRunnable() {
 				
 				@Override
 				public void run() {
 					ev.getEntity().kickPlayer("jayjay");
 				}
-			}, 20L*this.p.getConfig().getInt("kick-on-death.time", 30));
+			}.runTaskLater(this.p, 20L*this.p.getConfig().getInt("kick-on-death.time", 30));
 		}
 		
 		try { 
@@ -111,13 +112,13 @@ public class TGPluginListener implements Listener {
 			ev.getPlayer().teleport(l.add(0,1,0));
 		}
 		p.addToScoreboard(ev.getPlayer());
-		Bukkit.getScheduler().runTaskLater(this.p, new BukkitRunnable() {
+		new BukkitRunnable() {
 			
 			@Override
 			public void run() {
 				p.updatePlayerListName(ev.getPlayer());
 			}
-		}, 1L);
+		}.runTaskLater(this.p, 1L);
 	}
 	
 	@EventHandler
@@ -231,13 +232,13 @@ public class TGPluginListener implements Listener {
 	public void onEntityDamage(final EntityDamageEvent ev) {
 		if (ev.getEntity() instanceof Player) {
 			if (!p.isTakingDamage()) ev.setCancelled(true);
-			Bukkit.getScheduler().runTaskLater(this.p, new BukkitRunnable() {
+			new BukkitRunnable() {
 				
 				@Override
 				public void run() {
 					p.updatePlayerListName((Player)ev.getEntity());
 				}
-			}, 1L);
+			}.runTaskLater(this.p, 1L);
 		}
 	}
 	
@@ -245,13 +246,13 @@ public class TGPluginListener implements Listener {
 	public void onEntityRegainHealth(final EntityRegainHealthEvent ev) {
 		if (ev.getRegainReason() == RegainReason.SATIATED) ev.setCancelled(true);
 		if (ev.getEntity() instanceof Player) {
-			Bukkit.getScheduler().runTaskLater(this.p, new BukkitRunnable() {
+			new BukkitRunnable() {
 				
 				@Override
 				public void run() {
 					p.updatePlayerListName((Player)ev.getEntity());
 				}
-			}, 1L);
+			}.runTaskLater(this.p, 1L);
 		}
 	}
 	
