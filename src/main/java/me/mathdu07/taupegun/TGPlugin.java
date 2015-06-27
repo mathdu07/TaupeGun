@@ -6,10 +6,12 @@ import java.io.FileReader;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Random;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
@@ -32,6 +34,8 @@ import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.potion.Potion;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
@@ -57,6 +61,7 @@ public final class TGPlugin extends JavaPlugin implements ConversationAbandonedL
 	private TGPrompts tg = null;
 	private HashSet<String> deadPlayers = new HashSet<String>();
 	private ArrayList<Player> taupes = new ArrayList<Player>();
+	private Set<String> taupesClaimed = new HashSet<String>();
 	private TGTeam taupeTeam = null;
 	
 	@Override
@@ -285,6 +290,7 @@ public final class TGPlugin extends JavaPlugin implements ConversationAbandonedL
 						     taupe.sendMessage(ChatColor.GOLD + "Votre objectif est de ruiner votre équipe, et de rejoindre les autre taupes");
 						     taupe.sendMessage(ChatColor.GOLD + "Pour cela, vous avez 2 commandes spéciales : ");
 						     taupe.sendMessage(ChatColor.GOLD + "/reveal Pour vous révéler, histoire de rigoler ;)");
+						     taupe.sendMessage(ChatColor.GOLD + "/claim Pour obtenir un kit (utilisable une fois)");
 						     taupe.sendMessage(ChatColor.GOLD + "/t <message> Pour écrire à toutes les taupes,");
 						     taupe.sendMessage(ChatColor.GOLD + "les messages restent anonymes tant que vous ne vous êtes pas révéler");
 						     taupe.sendMessage(ChatColor.GOLD + "Bonne chance petite taupe, ne te fais pas spot !");
@@ -474,6 +480,9 @@ public final class TGPlugin extends JavaPlugin implements ConversationAbandonedL
                 oldTeam.removePlayer(p);
                 taupeTeam.addPlayer(p);
                 
+                // Give golden apple
+                p.getInventory().addItem(new ItemStack(Material.GOLDEN_APPLE));
+                
                 getServer().broadcastMessage(ChatColor.GOLD + "--- " + p.getName() + " se révèle être une taupe ! ---");
                 for (Player pp : getServer().getOnlinePlayers())
                 {
@@ -486,6 +495,48 @@ public final class TGPlugin extends JavaPlugin implements ConversationAbandonedL
             }
             
             return true;
+		}
+		else if (c.getName().equalsIgnoreCase("claim"))
+		{
+			if (!(s instanceof Player))
+            {
+                s.sendMessage(ChatColor.RED + "Vous devez être un joueur pour utiliser cette commande.");
+                return true;
+            }
+			
+			Player p = (Player) s;
+			
+			if (isTaupe(p))
+			{
+				if (!taupesClaimed.contains(p.getName()))
+				{
+					// Give kit
+					Collection<ItemStack> kit = new ArrayList<ItemStack>();
+					kit.add(new ItemStack(Material.FLINT_AND_STEEL));
+					kit.add(new ItemStack(Material.TNT, 2));
+					ItemStack poisonPotion = new ItemStack(Material.POTION);
+					poisonPotion.setDurability((short) 16388); // Splash Potion of poison I
+					kit.add(poisonPotion);
+					ItemStack healingPotion = new ItemStack(Material.POTION);
+					healingPotion.setDurability((short) 8197); // Potion of healing I
+					kit.add(healingPotion);
+					
+					p.getInventory().addItem(kit.toArray(new ItemStack[kit.size()]));
+					taupesClaimed.add(p.getName());
+					
+					p.sendMessage(ChatColor.GREEN + "Le kit vous a été donné");
+				}
+				else
+				{
+					p.sendMessage(ChatColor.RED + "Vous avez déjà réclamé votre kit");
+				}
+			}
+			else
+			{
+				p.sendMessage(ChatColor.RED + "Tu n'es pas une taupe !");
+			}
+			
+			return true;
 		}
 		
 		return false;

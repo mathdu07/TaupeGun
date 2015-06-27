@@ -13,3 +13,6 @@ commands:
    reveal:
       description: "Révéle la taupe"
       usage: "Usage : /<command>"
+   claim:
+      description: "Permet d'obtenir un kit pour une taupe"
+      usage: "Usage : /<command>"
